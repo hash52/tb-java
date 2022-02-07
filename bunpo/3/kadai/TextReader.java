@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.*;
 
@@ -10,51 +9,41 @@ public class TextReader {
 
     private static Logger logger = Logger.getLogger(TextReader.class.getName());
 
-    private static final String START = "START";
-    private static final String END = "END";
+    //列挙型
+    public enum Mark {
+        START, END
+    };
 
     private TextReader(String path) {
         this.path = path;
     }
 
     private void execute() {
-        List valueList = new ArrayList();
+        //総称型
+        List<Integer> valueList = new ObjectList<>();
 
-        FileReader fr = null;
-        BufferedReader br = null;
-        try {
-            fr = new FileReader(path);
-            br = new BufferedReader(fr);
-            String line;
+        //リソース付きtry文
+        try (FileReader fr = new FileReader(path); BufferedReader br = new BufferedReader(fr)) {
+            String line = null;
             while ((line = br.readLine()) != null) {
-                valueList.add(new Integer(line));
+                //オートボクシング
+                valueList.add(Integer.parseInt(line));
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                }
-            }
-            if (fr != null) {
-                try {
-                    fr.close();
-                } catch (IOException e) {
-                }
-            }
         }
-        int size = valueList.size();
-        for (int i = 0; i < size; i++) {
-            System.out.println(valueList.get(i));
+        //リソース付きtry文によりfinally節の省略
+
+        //拡張for文
+        for (Integer value : valueList) {
+            System.out.println(value);
         }
     }
 
-    public static void main(String[] args) {
-        logger.info(START);
+    public static void main(String... args /* 可変長引数 */) {
+        logger.info(Mark.START.name()); //列挙型
         new TextReader(args[0]).execute();
-        logger.info(END);
+        logger.info(Mark.END.name()); //列挙型
     }
 
 }
